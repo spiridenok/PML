@@ -1,4 +1,3 @@
-
 ---
 title: "Practical Machine Learning, Writeup Course Project"
 output: html_document
@@ -9,28 +8,27 @@ output: html_document
 From the list of all possible variables I assume that only variables with "accel" in their names represent data from accelerometers in different places as it's required by the goal of the project. After quick analysis of the resulting data I also removed some variables which values are mostly NA (var_total_accel_belt, var_accel_arm, var_accel_dumbbell, var_accel_forearm) assuming that thier values are not significant for the final modeling (of course the classe variable is also presumed in the final data set). It's not clear whether some variables in the resulting data set are correlated with each other, so I use all remaining variables for the model fit.
 
 ```{r,eval=FALSE}
-library(caret)
 set.seed(2015)
 data=read.csv("pml-training.csv")
-a=data[grepl("accel",names(data)) | grepl("classe", names(data))]
+accel_data=data[grepl("accel",names(data)) | grepl("classe", names(data))]
 # Remove variables with many NA's
-a_red = subset(a,select=-c(var_total_accel_belt,var_accel_arm,var_accel_dumbbell,var_accel_forearm))
+data_red = subset(accel_data,select=-c(var_total_accel_belt,var_accel_arm,var_accel_dumbbell,var_accel_forearm))
+```
 
-inTrain = createDataPartition(y=a_red$classe,p=0.7,list=FALSE)
-training = a_red[inTrain,]; testing = a_red[-inTrain,]
+# Cross Validation
+For the purpose of cross validation I split the data from the training.csv file into 2 subsets: actual training data (70% of the original data) and testing data (30%). Several different prediction algorithms are trained on the training set. After that the resulting models are used on the testing data set to check the accuracy of the prediction of that model. 
 
-library(doParallel)
-cl <- makeCluster(detectCores())
-registerDoParallel(cl)
-stopCluster(cl)
+```{r,eval=FALSE}
+inTrain = createDataPartition(y=data_red$classe,p=0.7,list=FALSE)
+training = data_red[inTrain,]; testing = data_red[-inTrain,]
+```
 
+# Model selection
+```{r,eval=FALSE,echo=FALSE}
+library(caret)
 mf_lm=train(classe ~., methog='lm',data=training)
-
-library(rpart)
 mf_rpart=train(classe~.,method='rpart',data=training)
-
 mf_rf=train(classe~.,method='rf',data=training,importance=TRUE,ntrees=1000)
-
 mf_lda=train(classe~.,method='lda',data=training)
 mf_nb=train(classe~.,method='nb',data=training)
 pred=predict(mf_rf, testing)
@@ -38,18 +36,9 @@ pred_nb=predict(mf_nb, testing)
 pred_lm=predict(mf_lm, testing)
 pred_lda=predict(mf_lda, testing)
 pred_rpart=predict(mf_rpart, testing)
-
-
-data_t=read.csv("pml-testing.csv")
-
-
-d_t_red = subset(d_t,select=-c(var_total_accel_belt,var_accel_arm,var_accel_dumbbell,var_accel_forearm))
-
 ```
 
-# Cross Validation
-For the purpose of cross validation I split the data from the training.csv file into 2 subsets: actual training data (70% of the original data) and testing data (30%). Several different prediction algorithms are trained on the training set. After that the resulting models are used on the testing data set to check the accuracy of the prediction of that model. 
-Several models are used: linear model, tree, random forests, linear discriminant analysis and naive Bayes models. The table below specifies the accuracy of each model on the test set:
+Several different models are considered for prediction: linear model, tree, random forests, linear discriminant analysis and naive Bayes models. The table below specifies the accuracy of each model on the test set:
 
 Model          |Accuracy (%)
 ---------------|------------
@@ -58,5 +47,12 @@ Tree           |43
 Random Forests |95
 LDA            |51
 Naive Bayes    |57
+
+An example of the calculation of one model (linear model in this case):
+```{r,eval=FALSE}
+mf_lm=train(classe ~., methog='lm',data=training)
+pred_lm=predict(mf_lm, testing)
+confusionMatrix(pred_lm,testing$classe)
+```
 
 From the table above I can see that the best Random forests model has the best prediction accuracy on the testing data set. This model will be used to predict 20 different test cases from testing.csv file.
