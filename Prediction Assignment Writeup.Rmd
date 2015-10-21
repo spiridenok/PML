@@ -1,6 +1,6 @@
 ---
 title: "Practical Machine Learning, Writeup Course Project"
-output: html_document
+output: word_document
 ---
 
 # Variables selection
@@ -23,8 +23,9 @@ inTrain = createDataPartition(y=data_red$classe,p=0.7,list=FALSE)
 training = data_red[inTrain,]; testing = data_red[-inTrain,]
 ```
 
-# Model selection
+Because the amount of data in the original data set is pretty significant (13737 rows in the training data and 5885 rows in the testing data), especially comparing to the number of variables (only 17 are left after removing non-acceleration and NA variables) no other cross-validation methods (like K-fold or boostrap) are considered anymore.
 
+# Model selection
 Several different models are considered for prediction: linear model, tree, random forests, linear discriminant analysis and naive Bayes models. The table below specifies the accuracy of each model on the test set:
 
 Model          |Accuracy (%)
@@ -41,5 +42,5 @@ mf_lm=train(classe ~., methog='lm',data=training)
 pred_lm=predict(mf_lm, testing)
 confusionMatrix(pred_lm,testing$classe)
 ```
-
-From the table above I can see that the best Random forests model has the best prediction accuracy on the testing data set. This model will be used to predict 20 different test cases from testing.csv file.
+# Conclusion
+From the table above I can see that the Random forests model has the best prediction accuracy on the testing data set. This model will be used to predict 20 different test cases from testing.csv file.
