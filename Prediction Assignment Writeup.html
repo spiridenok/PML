@@ -78,6 +78,7 @@ data_red = subset(accel_data,select=-c(var_total_accel_belt,var_accel_arm,var_ac
 <p>For the purpose of cross validation I split the data from the training.csv file into 2 subsets: actual training data (70% of the original data) and testing data (30%). Several different prediction algorithms are trained on the training set. After that the resulting models are used on the testing data set to check the accuracy of the prediction of that model.</p>
 <pre class="r"><code>inTrain = createDataPartition(y=data_red$classe,p=0.7,list=FALSE)
 training = data_red[inTrain,]; testing = data_red[-inTrain,]</code></pre>
+<p>Because the amount of data in the original data set is pretty significant (13737 rows in the training data and 5885 rows in the testing data), especially comparing to the number of variables (only 17 are left after removing non-acceleration and NA variables) no other cross-validation methods (like K-fold or boostrap) are considered anymore.</p>
 </div>
 <div id="model-selection" class="section level1">
 <h1>Model selection</h1>
