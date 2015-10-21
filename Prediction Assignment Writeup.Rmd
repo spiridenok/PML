@@ -24,19 +24,6 @@ training = data_red[inTrain,]; testing = data_red[-inTrain,]
 ```
 
 # Model selection
-```{r,eval=FALSE,echo=FALSE}
-library(caret)
-mf_lm=train(classe ~., methog='lm',data=training)
-mf_rpart=train(classe~.,method='rpart',data=training)
-mf_rf=train(classe~.,method='rf',data=training,importance=TRUE,ntrees=1000)
-mf_lda=train(classe~.,method='lda',data=training)
-mf_nb=train(classe~.,method='nb',data=training)
-pred=predict(mf_rf, testing)
-pred_nb=predict(mf_nb, testing)
-pred_lm=predict(mf_lm, testing)
-pred_lda=predict(mf_lda, testing)
-pred_rpart=predict(mf_rpart, testing)
-```
 
 Several different models are considered for prediction: linear model, tree, random forests, linear discriminant analysis and naive Bayes models. The table below specifies the accuracy of each model on the test set:
 
